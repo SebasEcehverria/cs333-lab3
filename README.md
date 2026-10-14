@@ -48,6 +48,8 @@ Each part uses exactly what we did in class. The `practice/` and `practice-wed/`
    ```
    Type something and press Enter. What does the Console show?
 
+   Answer: It shows `searching for` followed by what I typed. For example, searching `butler` logs `searching for butler`.
+
 3. Call the fake search. Add these lines **inside** your submit listener, after the `console.log`:
    ```js
      fakeSearch(query, function (books) {
@@ -55,6 +57,8 @@ Each part uses exactly what we did in class. The `practice/` and `practice-wed/`
      });
    ```
    Search `butler`. After a second, the Console shows what `fakeSearch` sent back. How many books, and what are their titles?
+
+   Answer: Two books: *Parable of the Sower* and *Kindred*.
 
 4. **Show that it's working.** Inside the listener, before `fakeSearch`, add:
    ```js
@@ -87,6 +91,8 @@ Each part uses exactly what we did in class. The `practice/` and `practice-wed/`
        li.append(save);
    ```
    Click Save on each book. How does each button know *which* book it belongs to?
+
+   Answer: Each time `forEach` runs, it creates a button with a click callback that remembers that iteration's `book`. This is a closure, so clicking the button logs that book's title.
 
 **Check:** `butler` → "Searching..." for a second → two books. `zzz` → "No books found". Save → that book's title in the Console.
 
@@ -127,8 +133,12 @@ Commit: `Part 1: fake search shows results`
    Search `octavia butler`. Real books! Then search `ender's game`.
    `fakeSearch` needed a callback. Where did the code from inside that callback go?
 
+   Answer: It moved into the async submit listener, after `await searchBooks(query)`. Once the promise resolves, the listener logs the books, renders them, and updates the status.
+
 10. **Missing authors.** Search `annual report`. Some books have no author, and your page breaks: look at the Console. Fix `renderResults` the way we did in Wednesday's step 6: start with `let author = "Unknown author";` and only use `book.author_name[0]` if `book.author_name` exists. Do the same for the year, leaving it out when `book.first_publish_year` doesn't exist.
     What was the error in the Console before you fixed it?
+
+    Answer: Accessing `book.author_name[0]` when `author_name` is missing causes `TypeError: Cannot read properties of undefined (reading '0')`. The code now uses `Unknown author` and leaves out missing years.
 
 11. **When the internet fails.** DevTools → **Network** → **Offline**, then search: stuck on "Searching...". Wrap the middle of your listener in `try` / `catch`, the way we did in Wednesday's step 5:
     ```js
@@ -181,6 +191,10 @@ Commit: `Part 2: real search with fetch`
     `push` adds an item to the end of an array. Save a few books, then remove one.
     Reload the page. What happens to your reading list, and why?
 
+    Answer: The reading list becomes empty. It is stored in a JavaScript array in memory, and reloading runs `const readingList = [];` again. It is not saved to permanent storage.
+
+    After the persistence extra: the list now survives a reload because it is saved as JSON in `localStorage` and restored when the page loads.
+
 **Check:** Save adds a book to "My reading list"; Remove takes it off.
 
 Commit: `Part 3: reading list`
@@ -192,6 +206,8 @@ Commit: `Part 3: reading list`
         if (readingList.includes(book)) return;
   ```
   Why does that still let you add a book twice if you search again first? (Hint: is it the *same* object?)
+
+  Answer: `includes` compares objects by reference. A new search creates new book objects, even when they describe the same book. The new object is not the same object already in the list, so it can be saved again. Restoring JSON after a reload also creates new objects.
 - **Keep the list after a reload.** The browser can store text for your page in `localStorage`. An array isn't text, but `JSON.stringify` turns it into JSON text, and `JSON.parse` turns it back:
   ```js
   // at the end of renderReadingList:
@@ -281,6 +297,15 @@ Your Book Finder works; now make it look like *yours*. Everything here goes at t
 6. **Match your landing page,** so your labs look like one website.
 
 **Question:** what did you change, and why? Add a screenshot of your Book Finder before and after to this README.
+
+Answer: I used a green accent, a soft background, rounded book cards, and a DM Sans font to make the page feel like my Lab 1 site. I put the colors in CSS variables so they are easy to change. The search form and buttons now match the cards, and keyboard focus has a visible outline. On small screens the search button fills the form width. Dark mode uses the same charcoal background and green accent as Lab 1. I kept the element IDs and the Book Finder behavior the same.
+
+Before:
+
+![Book Finder before custom styling](Screenshot-before.png)
+
+After:
+![After Finder before custom styling](Screenshot-after.png)
 
 ## Deploy it
 

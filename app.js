@@ -22,3 +22,128 @@ function fakeSearch(query, whenDone) {
 }
 
 // Your code starts here.
+// Find the form, input, status message, and list on the page.
+const form = document.querySelector("#search-form");
+const input = document.querySelector("#query");
+const statusMessage = document.querySelector("#status");
+const results = document.querySelector("#results");
+console.log(form, input, statusMessage, results);
+
+const readingListElement = document.querySelector("#reading-list");
+// Restore the saved JSON as an array, or start empty if nothing has been saved.
+const readingList = JSON.parse(localStorage.getItem("readingList")) || [];
+
+function renderReadingList() {
+  readingListElement.textContent = "";
+  readingList.forEach(function (book, index) {
+    const li = document.createElement("li");
+    li.textContent = book.title + " ";
+    const remove = document.createElement("button");
+    remove.textContent = "Remove";
+    remove.addEventListener("click", function () {
+      console.log("remove", book.title);
+      // Remove one book at this position, then redraw to update the indexes.
+      readingList.splice(index, 1);
+      renderReadingList();
+    });
+    li.append(remove);
+    readingListElement.append(li);
+  });
+  // Save after every redraw so both Save and Remove update browser storage.
+  localStorage.setItem("readingList", JSON.stringify(readingList));
+}
+
+function renderResults(books) {
+  // Clear the previous results before drawing the new books.
+  results.textContent = "";
+  books.forEach(function (book) {
+    const li = document.createElement("li");
+    // Real catalogue entries may have no author or publication year.
+    let author = "Unknown author";
+    if (book.author_name && book.author_name.length > 0) {
+      author = book.author_name[0];
+    }
+    let year = "";
+    if (book.first_publish_year) {
+      year = " (" + book.first_publish_year + ")";
+    }
+    li.textContent = book.title + " — " + author + year;
+
+    // Only add a cover when the catalogue provides its image ID.
+    if (book.cover_i) {
+      const img = document.createElement("img");
+      img.src = "https://covers.openlibrary.org/b/id/" + book.cover_i + "-S.jpg";
+      img.alt = "Cover of " + book.title;
+      li.append(img);
+    }
+
+    const save = document.createElement("button");
+    save.textContent = "Save";
+    // This callback remembers the book from this loop iteration.
+    save.addEventListener("click", function () {
+      console.log("save", book.title);
+      // includes checks the same object, so this prevents repeated saves from this result.
+      if (readingList.includes(book)) return;
+      readingList.push(book);
+      renderReadingList();
+    });
+    li.append(save);
+    results.append(li);
+  });
+}
+
+// Return the books so the submit listener can decide how to display them.
+async function searchBooks(query) {
+  const params = new URLSearchParams({
+    q: query.trim(),
+    limit: "10",
+    fields: "key,title,author_name,first_publish_year,cover_i"
+  });
+
+  const url = "https://openlibrary.org/search.json?" + params;
+
+  console.log("fetching", url);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const details = await response.text();
+    console.error("Open Library response:", response.status, details);
+    throw new Error("Library request failed: " + response.status);
+  }
+
+  const data = await response.json();
+  return data.docs || [];
+}
+
+form.addEventListener("submit", async function (event) {
+  // Keep the page from reloading when the form is submitted.
+  event.preventDefault();
+  const query = input.value.trim();
+
+  if (query.length < 3) {
+    statusMessage.textContent = "Please enter at least 3 characters to search.";
+    results.textContent = "";
+    return;
+  }
+
+  console.log("searching for", query);
+  statusMessage.textContent = "Searching...";
+
+  // await pauses this listener until the books arrive; catch handles a failed request.
+  try {
+    const books = await searchBooks(query);
+    console.log("got", books);
+    statusMessage.textContent = "";
+    renderResults(books);
+    if (books.length === 0) {
+      statusMessage.textContent = "No books found";
+    }
+  } catch (error) {
+    console.log("something went wrong:", error);
+    statusMessage.textContent = "Couldn't reach the library. Check your connection.";
+  }
+});
+
+// Display the saved books as soon as the page loads.
+renderReadingList();

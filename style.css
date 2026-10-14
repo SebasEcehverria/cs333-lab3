@@ -42,3 +42,157 @@ li img {
 #status {
   font-style: italic;
 }
+
+/* My palette uses the green accent and rounded cards from my Lab 1 page.
+   Variables let dark mode change colors without repeating the layout rules. */
+:root {
+  color-scheme: light;
+  --main: #237a3b;
+  --background: #f2f6f0;
+  --card: #ffffff;
+  --text: #18261d;
+  --muted: #536258;
+  --border: #cfdbce;
+  --glow: #dfeddb;
+  --button-text: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 48rem;
+  margin: 3rem auto;
+  font-family: "DM Sans", Arial, sans-serif;
+  background: radial-gradient(circle at top, var(--glow), var(--background) 36rem);
+  color: var(--text);
+}
+
+a {
+  color: var(--main);
+  text-underline-offset: 0.25rem;
+}
+
+body > a {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+h1, h2 {
+  color: var(--main);
+  letter-spacing: -0.04em;
+}
+
+h1 {
+  margin: 2rem 0 1.5rem;
+  font-size: clamp(2.5rem, 7vw, 3.75rem);
+  line-height: 1.1;
+}
+
+h2 {
+  margin-top: 2.5rem;
+  font-size: 1.6rem;
+}
+
+form {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  gap: 0.75rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+}
+
+button {
+  background: var(--main);
+  color: var(--button-text);
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+/* A visible focus ring helps when using Tab instead of a mouse. */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--main);
+  outline-offset: 3px;
+}
+
+#status {
+  min-height: 1.5rem;
+  margin: 1rem 0;
+  color: var(--muted);
+}
+
+#results li, #reading-list li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+li button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+li img {
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Match my Lab 1 dark colors when the computer prefers dark mode. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --main: #3fb950;
+    --background: #0d1117;
+    --card: #161b22;
+    --text: #f0f6fc;
+    --muted: #9da7b3;
+    --border: #30363d;
+    --glow: #15251b;
+    --button-text: #0d1117;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    margin: 1.5rem auto;
+  }
+
+  form {
+    padding: 1rem;
+  }
+
+  input {
+    flex-basis: 100%;
+  }
+
+  form button {
+    width: 100%;
+  }
+}
